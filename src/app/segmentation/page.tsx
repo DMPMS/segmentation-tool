@@ -318,8 +318,8 @@ const Segmentation: NextPage = () => {
               // ADICIONO O PRIMEIRO VÉRTICE A LISTA DE VÉRTICES SELECIONADOS.
               setSelectedVertex([[polygon.id, pointInsideVertex]]);
             }
-          } else if (pointInsidePolygon) {
-            // VERIFICO SE O PONTO CLICADO É DE UM POLÍGONO.
+          } else if (pointInsidePolygon && movingSelectedVertex === false) {
+            // VERIFICO SE O PONTO CLICADO É DE UM POLÍGONO E SE ELE NÃO ESTÁ MOVENDO UM VÉRTICE DE LUGAR.
             setSelectedPolygon(polygon);
           }
         });
