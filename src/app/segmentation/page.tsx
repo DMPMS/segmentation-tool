@@ -195,6 +195,69 @@ const Segmentation: NextPage = () => {
     dragPosition,
   ]);
 
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Enter") {
+        // Finish Polygon
+        if (
+          !(
+            !inDrawing ||
+            (polygonInDrawing?.points.length != undefined &&
+              polygonInDrawing?.points.length < 3)
+          )
+        ) {
+          handleFinishButtonClick();
+        }
+      } else if (event.key === "+") {
+        // Zoom in
+        if (!(inDrawing || movingSelectedVertex === true)) {
+          handleZoomIn();
+        }
+      } else if (event.key === "-") {
+        // Zoom out
+        if (!(inDrawing || movingSelectedVertex === true)) {
+          handleZoomOut();
+        }
+      } else if (event.ctrlKey && event.key === "ArrowUp") {
+        // Move up
+        if (!(inDrawing || movingSelectedVertex === true)) {
+          handleDragUp();
+        }
+      } else if (event.ctrlKey && event.key === "ArrowDown") {
+        // Move down
+        if (!(inDrawing || movingSelectedVertex === true)) {
+          handleDragDown();
+        }
+      } else if (event.ctrlKey && event.key === "ArrowLeft") {
+        // Move left
+        if (!(inDrawing || movingSelectedVertex === true)) {
+          handleDragLeft();
+        }
+      } else if (event.ctrlKey && event.key === "ArrowRight") {
+        // Move right
+        if (!(inDrawing || movingSelectedVertex === true)) {
+          handleDragRight();
+        }
+      } else if (event.key === "Backspace") {
+        // Undo Point Click
+        if (inDrawing) {
+          handleUndoPointClick();
+        }
+      } else if (event.key === "n" || event.key === "N") {
+        // Start segmentation
+        if (!inDrawing) {
+          handleStartButtonClick();
+        }
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [inDrawing, polygonInDrawing, dragPosition, drawingStarted, scale, image]);
+
   function canvasMouseMoveEvent(
     canvas: HTMLCanvasElement,
     polygons: Polygon[],
