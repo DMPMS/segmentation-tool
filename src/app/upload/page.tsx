@@ -61,7 +61,7 @@ const Upload: NextPage = () => {
         ...classes,
         {
           name: inputValue,
-          color: randomColorGenerator(),
+          color: randomColorGenerator(classes.length),
           id: classes.length + 1,
         },
       ]);

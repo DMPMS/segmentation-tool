@@ -15,6 +15,7 @@ export type Polygon = {
   imageId: number;
   created_at: Date;
   resized: boolean;
+  hidden: boolean;
 };
 
 export type Image = {

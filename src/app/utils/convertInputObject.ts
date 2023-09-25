@@ -36,7 +36,7 @@ export function converterJSON(jsonEntrada: any) {
   jsonEntrada.categories.forEach(function(category: any) {
     var classe = {
       name: category.name,
-      color: randomColorGenerator(),
+      color: randomColorGenerator(category.id - 1),
       id: category.id
     };
     jsonSaida.classes.push(classe);
@@ -62,6 +62,7 @@ export function converterJSON(jsonEntrada: any) {
       imageName: getImage(jsonEntrada.images, annotation.image_id).file_name,
       created_at: new Date(),
       resized: false,
+      hidden: false,
     };
     jsonSaida.polygons.push(poligono);
   });

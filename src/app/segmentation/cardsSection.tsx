@@ -1,6 +1,10 @@
 import { useState } from "react";
 
-import { DeleteOutlined } from "@ant-design/icons";
+import {
+  DeleteOutlined,
+  EyeInvisibleOutlined,
+  EyeOutlined,
+} from "@ant-design/icons";
 import { Badge, Button, Card, Col, Row, Select, Tag } from "antd";
 import moment from "moment";
 
@@ -11,10 +15,14 @@ type CardsSectionProps = {
   setPolygonName: React.Dispatch<React.SetStateAction<string>>;
   classesOptions: Class[];
   selectedPolygon: Polygon | null;
+  selectedVertex: Array<[number, number]>;
   selectedImage: Image | null;
   polygons: Polygon[];
   setPolygons: React.Dispatch<React.SetStateAction<Polygon[]>>;
   classColor: (className: string) => string;
+  setSelectedVertex: React.Dispatch<
+    React.SetStateAction<Array<[number, number]>>
+  >;
   setSelectedPolygon: React.Dispatch<React.SetStateAction<Polygon | null>>;
 };
 
@@ -23,9 +31,11 @@ const CardsSection = ({
   polygons,
   setPolygons,
   selectedPolygon,
+  selectedVertex,
   selectedImage,
   setPolygonName,
   classColor,
+  setSelectedVertex,
   setSelectedPolygon,
 }: CardsSectionProps) => {
   const [activeTabKey, setActiveTabKey] = useState<string>("classes");
@@ -35,11 +45,44 @@ const CardsSection = ({
   };
 
   const onRemove = (item: Polygon) => {
-    const newArray = polygons.filter(
+    const updatedPolygons = polygons.filter(
       (polygon: Polygon) => polygon?.name !== item?.name
     );
+
+    if (selectedVertex.length > 0) {
+      if (selectedVertex[0][0] === item.id) {
+        setSelectedVertex([]);
+      }
+    }
+
     setSelectedPolygon(null);
-    setPolygons(newArray);
+    setPolygons(updatedPolygons);
+  };
+
+  const onHide = (item: Polygon) => {
+    const updatedPolygons = polygons.map((polygon: Polygon) => {
+      if (polygon.id === item.id) {
+        return { ...polygon, hidden: !polygon.hidden };
+      }
+      return polygon;
+    });
+
+    if (selectedVertex.length > 0) {
+      if (selectedVertex[0][0] === item.id) {
+        setSelectedVertex([]);
+      }
+    }
+
+    setSelectedPolygon(null);
+    setPolygons(updatedPolygons);
+  };
+
+  const onSelect = (item: Polygon) => {
+    if (item.hidden === false) {
+      setSelectedPolygon(item);
+    } else {
+      setSelectedPolygon(null);
+    }
   };
 
   const tabList = [
@@ -102,16 +145,16 @@ const CardsSection = ({
             .map((polygon: Polygon) => (
               <div
                 key={polygon.id}
-                onClick={() => setSelectedPolygon(polygon)}
                 style={{
-                  cursor: "pointer",
                   display: "flex",
-                  width: "100%",
                   alignItems: "center",
                   justifyContent: "space-between",
                 }}
               >
-                <div>
+                <div
+                  onClick={() => onSelect(polygon)}
+                  style={{ cursor: "pointer" }}
+                >
                   <Badge
                     color={classColor(polygon.class)}
                     text={
@@ -119,10 +162,31 @@ const CardsSection = ({
                     }
                   />
                 </div>
-                <div>
-                  <Tag onClick={() => onRemove(polygon)} color="red">
-                    <DeleteOutlined rev={undefined} />
-                  </Tag>
+
+                <div style={{ display: "flex", alignItems: "center" }}>
+                  <div>
+                    <Tag
+                      onClick={() => onHide(polygon)}
+                      color="blue"
+                      style={{ cursor: "pointer" }}
+                    >
+                      {polygon.hidden ? (
+                        <EyeInvisibleOutlined rev={undefined} />
+                      ) : (
+                        <EyeOutlined rev={undefined} />
+                      )}
+                    </Tag>
+                  </div>
+
+                  <div>
+                    <Tag
+                      onClick={() => onRemove(polygon)}
+                      color="red"
+                      style={{ cursor: "pointer" }}
+                    >
+                      <DeleteOutlined rev={undefined} />
+                    </Tag>
+                  </div>
                 </div>
               </div>
             ))}

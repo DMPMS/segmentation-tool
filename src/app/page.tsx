@@ -55,7 +55,7 @@ export default function Home() {
     e.preventDefault();
 
     if (inputValue.trim() !== '') {
-      setClasses([...classes, {name: inputValue, color: randomColorGenerator(), id: classes.length + 1 }]);
+      setClasses([...classes, {name: inputValue, color: randomColorGenerator(classes.length), id: classes.length + 1 }]);
 
       formNewProject.resetFields(['classes'])
       setInputValue('');

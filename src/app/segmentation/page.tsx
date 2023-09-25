@@ -176,7 +176,8 @@ const Segmentation: NextPage = () => {
     ctx.translate(dragPosition[0], dragPosition[1]);
     ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
 
-    drawPolygons(polygons, selectedImage, selectedPolygon, selectedVertex, ctx);
+    const nonHiddenPolygons = polygons.filter((polygon) => !polygon.hidden);
+    drawPolygons(nonHiddenPolygons, selectedImage, selectedPolygon, selectedVertex, ctx);
 
     ctx.restore();
 
@@ -282,7 +283,7 @@ const Segmentation: NextPage = () => {
       let cursorOverPolygon = false;
       polygons
         .filter(
-          (polygon: Polygon) => polygon.imageName === selectedImage.file_name
+          (polygon: Polygon) => polygon.imageName === selectedImage.file_name && polygon.hidden === false
         )
         .forEach(({ points }) => {
           const pointInsideVertex = isPointInsideVertex(
@@ -338,7 +339,7 @@ const Segmentation: NextPage = () => {
       if (!drawingStarted) {
         polygons
           .filter(
-            (polygon: Polygon) => polygon.imageName === selectedImage?.file_name
+            (polygon: Polygon) => polygon.imageName === selectedImage?.file_name && polygon.hidden === false
           )
           .forEach((polygon) => {
             const pointInsideVertex = isPointInsideVertex(
@@ -415,6 +416,7 @@ const Segmentation: NextPage = () => {
           imageId: selectedImage.id,
           created_at: new Date(),
           resized: true,
+          hidden: false,
         });
         setInDrawing(true);
       } else {
@@ -521,6 +523,7 @@ const Segmentation: NextPage = () => {
     setPolygons((prevPolygons) =>
       prevPolygons.filter((polygon) => polygon !== selectedPolygon)
     );
+    setSelectedVertex([]);
     setSelectedPolygon(null);
   };
 
@@ -529,7 +532,7 @@ const Segmentation: NextPage = () => {
 
     polygons
       .filter(
-        (polygon: Polygon) => polygon.imageName === selectedImage?.file_name
+        (polygon: Polygon) => polygon.imageName === selectedImage?.file_name && polygon.hidden === false
       )
       .filter((polygon: Polygon) => polygon.id === selectedVertex[0][0])
       .forEach(({ points }) => {
@@ -731,10 +734,12 @@ const Segmentation: NextPage = () => {
               setPolygonName={setPolygonName}
               classesOptions={classes}
               selectedPolygon={selectedPolygon}
+              selectedVertex={selectedVertex}
               selectedImage={selectedImage}
               polygons={polygons}
               classColor={classColor}
               setSelectedPolygon={setSelectedPolygon}
+              setSelectedVertex={setSelectedVertex}
             />
           </div>
           <Canvas canvas={canvasRef} handleCanvasClick={handleCanvasClick} />
