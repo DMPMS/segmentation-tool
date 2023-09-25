@@ -177,7 +177,13 @@ const Segmentation: NextPage = () => {
     ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
 
     const nonHiddenPolygons = polygons.filter((polygon) => !polygon.hidden);
-    drawPolygons(nonHiddenPolygons, selectedImage, selectedPolygon, selectedVertex, ctx);
+    drawPolygons(
+      nonHiddenPolygons,
+      selectedImage,
+      selectedPolygon,
+      selectedVertex,
+      ctx
+    );
 
     ctx.restore();
 
@@ -283,7 +289,9 @@ const Segmentation: NextPage = () => {
       let cursorOverPolygon = false;
       polygons
         .filter(
-          (polygon: Polygon) => polygon.imageName === selectedImage.file_name && polygon.hidden === false
+          (polygon: Polygon) =>
+            polygon.imageName === selectedImage.file_name &&
+            polygon.hidden === false
         )
         .forEach(({ points }) => {
           const pointInsideVertex = isPointInsideVertex(
@@ -339,7 +347,9 @@ const Segmentation: NextPage = () => {
       if (!drawingStarted) {
         polygons
           .filter(
-            (polygon: Polygon) => polygon.imageName === selectedImage?.file_name && polygon.hidden === false
+            (polygon: Polygon) =>
+              polygon.imageName === selectedImage?.file_name &&
+              polygon.hidden === false
           )
           .forEach((polygon) => {
             const pointInsideVertex = isPointInsideVertex(
@@ -532,7 +542,9 @@ const Segmentation: NextPage = () => {
 
     polygons
       .filter(
-        (polygon: Polygon) => polygon.imageName === selectedImage?.file_name && polygon.hidden === false
+        (polygon: Polygon) =>
+          polygon.imageName === selectedImage?.file_name &&
+          polygon.hidden === false
       )
       .filter((polygon: Polygon) => polygon.id === selectedVertex[0][0])
       .forEach(({ points }) => {
@@ -572,6 +584,9 @@ const Segmentation: NextPage = () => {
 
   const handleMovingSelectedVertexButtonClick = () => {
     setMovingSelectedVertex(!movingSelectedVertex);
+    if (movingSelectedVertex === true) {
+      setSelectedVertex([]);
+    }
   };
 
   const handleUndoPointClick = () => {
