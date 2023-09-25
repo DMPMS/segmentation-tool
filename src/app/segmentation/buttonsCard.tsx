@@ -93,8 +93,7 @@ const ButtonsCard = ({
                 icon={<EditOutlined />}
                 disabled={
                   inDrawing ||
-                  selectedVertex.length !== 1 ||
-                  movingSelectedVertex === true
+                  selectedVertex.length !== 1
                 }
               />
             </Tooltip>

@@ -248,6 +248,10 @@ const Segmentation: NextPage = () => {
         if (!inDrawing) {
           handleStartButtonClick();
         }
+      } else if (event.key === "e" || event.key === "E") {
+        if (!(inDrawing || selectedVertex.length !== 1)) {
+          handleMovingSelectedVertexButtonClick();
+        }
       }
     };
 
@@ -256,7 +260,16 @@ const Segmentation: NextPage = () => {
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [inDrawing, polygonInDrawing, dragPosition, drawingStarted, scale, image]);
+  }, [
+    inDrawing,
+    polygonInDrawing,
+    dragPosition,
+    drawingStarted,
+    scale,
+    image,
+    selectedVertex,
+    movingSelectedVertex,
+  ]);
 
   function canvasMouseMoveEvent(
     canvas: HTMLCanvasElement,
@@ -318,110 +331,110 @@ const Segmentation: NextPage = () => {
           y / scale - dragPosition[1]
         );
       });
-      setMovingSelectedVertex(false);
-    }
+      // setMovingSelectedVertex(false);
+    } else {
+      setSelectedPolygon(null);
 
-    setSelectedPolygon(null);
+      if (!drawingStarted) {
+        polygons
+          .filter(
+            (polygon: Polygon) => polygon.imageName === selectedImage?.file_name
+          )
+          .forEach((polygon) => {
+            const pointInsideVertex = isPointInsideVertex(
+              x / scale - dragPosition[0],
+              y / scale - dragPosition[1],
+              polygon.points
+            );
 
-    if (!drawingStarted) {
-      polygons
-        .filter(
-          (polygon: Polygon) => polygon.imageName === selectedImage?.file_name
-        )
-        .forEach((polygon) => {
-          const pointInsideVertex = isPointInsideVertex(
-            x / scale - dragPosition[0],
-            y / scale - dragPosition[1],
-            polygon.points
-          );
+            const pointInsidePolygon = isPointInsidePolygon(
+              x / scale - dragPosition[0],
+              y / scale - dragPosition[1],
+              polygon.points
+            );
 
-          const pointInsidePolygon = isPointInsidePolygon(
-            x / scale - dragPosition[0],
-            y / scale - dragPosition[1],
-            polygon.points
-          );
+            // VERIFICO SE O PONTO CLICADO É UM VÉRTICE.
+            if (pointInsideVertex !== null) {
+              // VERIFICO SE HÁ VERTICES SELECIONADOS.
+              if (selectedVertex.length > 0) {
+                // VERIFICO SE O POLÍGONO DO VÉRTICE SELECIONADO É DIFERENTE DO POLÍGONO DOS VÉRTICES JÁ SELECIONADOS.
+                if (selectedVertex[0][0] !== polygon.id) {
+                  // SELECIONO O NOVO VÉRTICE E DESELECIONO OS VÉRTICES SELECIONADOS NO POLÍGONO ANTERIOR.
+                  setSelectedVertex([[polygon.id, pointInsideVertex]]);
+                } else {
+                  // VERIFICO SE O VÉRTICE JÁ ESTÁ SELECIONADO.
+                  let alreadySelected = false;
+                  for (let i = 0; i < selectedVertex.length; i++) {
+                    if (
+                      selectedVertex[i][0] === polygon.id &&
+                      selectedVertex[i][1] === pointInsideVertex
+                    ) {
+                      alreadySelected = true;
+                      break;
+                    }
+                  }
 
-          // VERIFICO SE O PONTO CLICADO É UM VÉRTICE.
-          if (pointInsideVertex !== null) {
-            // VERIFICO SE HÁ VERTICES SELECIONADOS.
-            if (selectedVertex.length > 0) {
-              // VERIFICO SE O POLÍGONO DO VÉRTICE SELECIONADO É DIFERENTE DO POLÍGONO DOS VÉRTICES JÁ SELECIONADOS.
-              if (selectedVertex[0][0] !== polygon.id) {
-                // SELECIONO O NOVO VÉRTICE E DESELECIONO OS VÉRTICES SELECIONADOS NO POLÍGONO ANTERIOR.
-                setSelectedVertex([[polygon.id, pointInsideVertex]]);
-              } else {
-                // VERIFICO SE O VÉRTICE JÁ ESTÁ SELECIONADO.
-                let alreadySelected = false;
-                for (let i = 0; i < selectedVertex.length; i++) {
-                  if (
-                    selectedVertex[i][0] === polygon.id &&
-                    selectedVertex[i][1] === pointInsideVertex
-                  ) {
-                    alreadySelected = true;
-                    break;
+                  if (alreadySelected === true) {
+                    // O VÉRTICE JÁ ESTAVA SELECIONADO, ENTÃO DESELECIONO ELE.
+                    setSelectedVertex((prevSelectedVertex) =>
+                      prevSelectedVertex.filter(
+                        (vertex) => vertex[1] !== pointInsideVertex
+                      )
+                    );
+                  } else {
+                    // O VÉRTICE NÃO ESTAVA SELECIONADO, ENTÃO SELECIONO ELE.
+                    setSelectedVertex((prevSelectedVertex) => [
+                      ...prevSelectedVertex,
+                      [polygon.id, pointInsideVertex],
+                    ]);
                   }
                 }
-
-                if (alreadySelected === true) {
-                  // O VÉRTICE JÁ ESTAVA SELECIONADO, ENTÃO DESELECIONO ELE.
-                  setSelectedVertex((prevSelectedVertex) =>
-                    prevSelectedVertex.filter(
-                      (vertex) => vertex[1] !== pointInsideVertex
-                    )
-                  );
-                } else {
-                  // O VÉRTICE NÃO ESTAVA SELECIONADO, ENTÃO SELECIONO ELE.
-                  setSelectedVertex((prevSelectedVertex) => [
-                    ...prevSelectedVertex,
-                    [polygon.id, pointInsideVertex],
-                  ]);
-                }
+              } else {
+                // ADICIONO O PRIMEIRO VÉRTICE A LISTA DE VÉRTICES SELECIONADOS.
+                setSelectedVertex([[polygon.id, pointInsideVertex]]);
               }
-            } else {
-              // ADICIONO O PRIMEIRO VÉRTICE A LISTA DE VÉRTICES SELECIONADOS.
-              setSelectedVertex([[polygon.id, pointInsideVertex]]);
+            } else if (pointInsidePolygon && movingSelectedVertex === false) {
+              // VERIFICO SE O PONTO CLICADO É DE UM POLÍGONO E SE ELE NÃO ESTÁ MOVENDO UM VÉRTICE DE LUGAR.
+              setSelectedPolygon(polygon);
             }
-          } else if (pointInsidePolygon && movingSelectedVertex === false) {
-            // VERIFICO SE O PONTO CLICADO É DE UM POLÍGONO E SE ELE NÃO ESTÁ MOVENDO UM VÉRTICE DE LUGAR.
-            setSelectedPolygon(polygon);
-          }
-        });
-    }
-
-    if (!drawingStarted) return;
-
-    if (!inDrawing) {
-      // Começa um novo polígono
-      setPolygonInDrawing({
-        points: [[x, y]],
-        color: classColor(polygonName),
-        name: `${countPolygons + 1} - ${polygonName}`,
-        class: polygonName,
-        id: countPolygons + 1,
-        urlImage: selectedImage?.url || "",
-        imageName: selectedImage?.file_name || "",
-        imageId: selectedImage.id,
-        created_at: new Date(),
-        resized: true,
-      });
-      setInDrawing(true);
-    } else {
-      const coordenadasAtualizadas = polygonInDrawing?.points;
-
-      // Adiciona uma nova coordenada ao array
-      coordenadasAtualizadas!.push([x, y]);
-      if (coordenadasAtualizadas) {
-        setPolygonInDrawing({
-          ...polygonInDrawing,
-          points: coordenadasAtualizadas,
-        });
+          });
       }
-      // Adiciona um ponto ao polígono atual
-      // setPolygonInDrawing((prevPolygon) => {
-      //   if (!prevPolygon) return null;
-      //   const newPoints = [...prevPolygon.points, [x, y]];
-      //   return { ...prevPolygon, points: newPoints };
-      // });
+
+      if (!drawingStarted) return;
+
+      if (!inDrawing) {
+        // Começa um novo polígono
+        setPolygonInDrawing({
+          points: [[x, y]],
+          color: classColor(polygonName),
+          name: `${countPolygons + 1} - ${polygonName}`,
+          class: polygonName,
+          id: countPolygons + 1,
+          urlImage: selectedImage?.url || "",
+          imageName: selectedImage?.file_name || "",
+          imageId: selectedImage.id,
+          created_at: new Date(),
+          resized: true,
+        });
+        setInDrawing(true);
+      } else {
+        const coordenadasAtualizadas = polygonInDrawing?.points;
+
+        // Adiciona uma nova coordenada ao array
+        coordenadasAtualizadas!.push([x, y]);
+        if (coordenadasAtualizadas) {
+          setPolygonInDrawing({
+            ...polygonInDrawing,
+            points: coordenadasAtualizadas,
+          });
+        }
+        // Adiciona um ponto ao polígono atual
+        // setPolygonInDrawing((prevPolygon) => {
+        //   if (!prevPolygon) return null;
+        //   const newPoints = [...prevPolygon.points, [x, y]];
+        //   return { ...prevPolygon, points: newPoints };
+        // });
+      }
     }
   };
 
@@ -555,7 +568,7 @@ const Segmentation: NextPage = () => {
   };
 
   const handleMovingSelectedVertexButtonClick = () => {
-    setMovingSelectedVertex(true);
+    setMovingSelectedVertex(!movingSelectedVertex);
   };
 
   const handleUndoPointClick = () => {
