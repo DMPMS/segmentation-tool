@@ -423,7 +423,7 @@ const Segmentation: NextPage = () => {
           id: countPolygons + 1,
           urlImage: selectedImage?.url || "",
           imageName: selectedImage?.file_name || "",
-          imageId: selectedImage.id,
+          // imageId: selectedImage.id,
           created_at: new Date(),
           resized: true,
           hidden: false,
@@ -453,7 +453,8 @@ const Segmentation: NextPage = () => {
   const saveCoordenates = () => {
     let newPolygons: any[] = [];
     polygons.forEach(
-      ({ imageId, imageName, points, class: actualClass }, index: number) => {
+      ({ imageName, points, class: actualClass }, index: number) => {
+      // ({ imageId, imageName, points, class: actualClass }, index: number) => {
         const segmentation = [
           points
             .map((item: [number, number]) => {
@@ -470,7 +471,8 @@ const Segmentation: NextPage = () => {
         ];
         const polygon = {
           id_mask: index + 1,
-          image_id: imageId,
+          // image_id: imageId,
+          image_name: imageName,
           category_id: classInfo("name", actualClass).id,
           segmentation,
           bbox: returnBbox(segmentation[0]),

@@ -12,7 +12,7 @@ export type Polygon = {
   id: number;
   urlImage: string;
   imageName: string;
-  imageId: number;
+  // imageId: number;
   created_at: Date;
   resized: boolean;
   hidden: boolean;
