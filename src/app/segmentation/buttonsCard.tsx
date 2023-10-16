@@ -11,8 +11,11 @@ import {
   RightCircleOutlined,
   UndoOutlined,
   EditOutlined,
+  PlusCircleOutlined,
 } from "@ant-design/icons";
 import { Card, Space, Button, Tooltip } from "antd";
+
+import { Polygon } from "@/types";
 
 import styles from "../styles/Segmentation.module.css";
 
@@ -24,6 +27,7 @@ type ButtonsCardProps = {
   selectedVertex: any;
   movingSelectedVertex: any;
   polygonInDrawing: any;
+  polygons: any;
   handleFinishButtonClick: any;
   handleZoomIn: any;
   handleZoomOut: any;
@@ -35,6 +39,7 @@ type ButtonsCardProps = {
   handlePointPolygonButtonClick: any;
   handleUndoPointClick: any;
   handleMovingSelectedVertexButtonClick: any;
+  handleAddNewPointButtonClick: any;
   saveCoordenates: any;
 };
 
@@ -44,6 +49,7 @@ const ButtonsCard = ({
   handlePointPolygonButtonClick,
   handleUndoPointClick,
   handleMovingSelectedVertexButtonClick,
+  handleAddNewPointButtonClick,
   handleFinishButtonClick,
   handleZoomIn,
   handleZoomOut,
@@ -58,7 +64,26 @@ const ButtonsCard = ({
   selectedVertex,
   movingSelectedVertex,
   polygonInDrawing,
+  polygons,
 }: ButtonsCardProps) => {
+  let firstAndLast = false;
+
+  if (selectedVertex.length === 2) {
+    for (let i = 0; i < polygons.length; i++) {
+      if (selectedVertex[0][0] === polygons[i].id) {
+        if (
+          (selectedVertex[0][1] === 0 &&
+            selectedVertex[1][1] === polygons[i].points.length - 1) ||
+          (selectedVertex[0][1] === polygons[i].points.length - 1 &&
+            selectedVertex[1][1] === 0)
+        ) {
+          firstAndLast = true;
+          break;
+        }
+      }
+    }
+  }
+
   return (
     <div>
       <div style={{ display: "inline-block" }}>
@@ -91,9 +116,19 @@ const ButtonsCard = ({
                 type="primary"
                 onClick={handleMovingSelectedVertexButtonClick}
                 icon={<EditOutlined />}
+                disabled={inDrawing || selectedVertex.length !== 1}
+              />
+            </Tooltip>
+            <Tooltip placement="left" title="Add new point">
+              <Button
+                type="primary"
+                onClick={handleAddNewPointButtonClick}
+                icon={<PlusCircleOutlined />}
                 disabled={
                   inDrawing ||
-                  selectedVertex.length !== 1
+                  selectedVertex.length !== 2 ||
+                  (Math.abs(selectedVertex[0][1] - selectedVertex[1][1]) != 1 &&
+                    firstAndLast === false)
                 }
               />
             </Tooltip>
@@ -102,7 +137,9 @@ const ButtonsCard = ({
                 type="primary"
                 onClick={handleStartButtonClick}
                 icon={<CaretRightOutlined />}
-                disabled={inDrawing || drawingStarted || movingSelectedVertex === true}
+                disabled={
+                  inDrawing || drawingStarted || movingSelectedVertex === true
+                }
               />
             </Tooltip>
             <Tooltip placement="left" title="Finish polygon">

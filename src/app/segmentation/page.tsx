@@ -331,7 +331,9 @@ const Segmentation: NextPage = () => {
     const x = event.clientX - rect.left;
     const y = event.clientY - rect.top;
 
-    if (movingSelectedVertex && selectedVertex.length > 0) {
+    // console.log(polygons[selectedVertex[0][0]].points.length);
+
+    if (movingSelectedVertex && selectedVertex.length === 1) {
       setPolygons((prevPolygons) => {
         return moveSelectedVertex(
           prevPolygons,
@@ -454,7 +456,7 @@ const Segmentation: NextPage = () => {
     let newPolygons: any[] = [];
     polygons.forEach(
       ({ imageName, points, class: actualClass }, index: number) => {
-      // ({ imageId, imageName, points, class: actualClass }, index: number) => {
+        // ({ imageId, imageName, points, class: actualClass }, index: number) => {
         const segmentation = [
           points
             .map((item: [number, number]) => {
@@ -589,6 +591,65 @@ const Segmentation: NextPage = () => {
     if (movingSelectedVertex === true) {
       setSelectedVertex([]);
     }
+  };
+
+  const addVertexBetweenPoints = (
+    polygonPoints: [number, number][],
+    selectedVertex: [number, number][]
+  ) => {
+    const vertexList = [selectedVertex[0][1], selectedVertex[1][1]];
+    vertexList.sort((a, b) => a - b);
+
+    if (vertexList[0] === 0 && vertexList[1] === polygonPoints.length - 1) {
+      const aux = vertexList[0];
+      vertexList[0] = vertexList[1];
+      vertexList[1] = aux;
+    }
+
+    const newX =
+      (polygonPoints[vertexList[0]][0] + polygonPoints[vertexList[1]][0]) / 2;
+    const newY =
+      (polygonPoints[vertexList[0]][1] + polygonPoints[vertexList[1]][1]) / 2;
+
+    const newPoints = [...polygonPoints];
+    newPoints.splice(vertexList[0] + 1, 0, [newX, newY]);
+    return newPoints;
+  };
+
+  const handleAddNewPointButtonClick = () => {
+    if (selectedVertex.length !== 2) return;
+
+    let firstAndLast = false;
+
+    polygons
+      .filter((polygon: Polygon) => polygon.id === selectedVertex[0][0])
+      .forEach(({ points }) => {
+        if (
+          (selectedVertex[0][1] === 0 &&
+            selectedVertex[1][1] === points.length - 1) ||
+          (selectedVertex[0][1] === points.length - 1 &&
+            selectedVertex[1][1] === 0)
+        ) {
+          firstAndLast = true;
+        }
+      });
+
+    if (
+      Math.abs(selectedVertex[0][1] - selectedVertex[1][1]) != 1 &&
+      firstAndLast === false
+    )
+      return;
+
+    setPolygons((prevPolygons) =>
+      prevPolygons.map((polygon) =>
+        polygon.id === selectedVertex[0][0]
+          ? {
+              ...polygon,
+              points: addVertexBetweenPoints(polygon.points, selectedVertex),
+            }
+          : polygon
+      )
+    );
   };
 
   const handleUndoPointClick = () => {
@@ -769,6 +830,7 @@ const Segmentation: NextPage = () => {
               selectedVertex={selectedVertex}
               movingSelectedVertex={movingSelectedVertex}
               polygonInDrawing={polygonInDrawing}
+              polygons={polygons}
               handleFinishButtonClick={handleFinishButtonClick}
               handleZoomIn={handleZoomIn}
               handleZoomOut={handleZoomOut}
@@ -782,6 +844,7 @@ const Segmentation: NextPage = () => {
               handleMovingSelectedVertexButtonClick={
                 handleMovingSelectedVertexButtonClick
               }
+              handleAddNewPointButtonClick={handleAddNewPointButtonClick}
               saveCoordenates={saveCoordenates}
             />
           </div>
