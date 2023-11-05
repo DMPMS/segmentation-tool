@@ -35,6 +35,7 @@ type ButtonsCardProps = {
   handleDragDown: any;
   handleDragRight: any;
   handleDragLeft: any;
+  scale: any;
   handleDeletePolygonButtonClick: any;
   handlePointPolygonButtonClick: any;
   handleUndoPointClick: any;
@@ -57,6 +58,7 @@ const ButtonsCard = ({
   handleDragDown,
   handleDragRight,
   handleDragLeft,
+  scale,
   handleStartButtonClick,
   inDrawing,
   saveCoordenates,
@@ -85,11 +87,10 @@ const ButtonsCard = ({
   }
 
   return (
-    <div>
-      <div style={{ display: "inline-block" }}>
-        <Card title="Actions" className={styles.card_tools} size="small">
+      <Card title="Actions" className={styles.card_tools} size="small">
+        <Space direction="horizontal">
           <Space direction="vertical" align="center" size={"middle"}>
-            <Tooltip placement="left" title="Undo Point Click">
+            <Tooltip title="Undo Point Click">
               <Button
                 type="primary"
                 danger
@@ -98,7 +99,7 @@ const ButtonsCard = ({
                 disabled={!inDrawing}
               />
             </Tooltip>
-            <Tooltip placement="left" title="Delete point">
+            <Tooltip title="Delete point">
               <Button
                 type="primary"
                 danger
@@ -111,7 +112,7 @@ const ButtonsCard = ({
                 }
               />
             </Tooltip>
-            <Tooltip placement="left" title="Edit selected point">
+            <Tooltip title="Edit selected point">
               <Button
                 type="primary"
                 onClick={handleMovingSelectedVertexButtonClick}
@@ -119,7 +120,7 @@ const ButtonsCard = ({
                 disabled={inDrawing || selectedVertex.length !== 1}
               />
             </Tooltip>
-            <Tooltip placement="left" title="Add new point">
+            <Tooltip title="Add new point">
               <Button
                 type="primary"
                 onClick={handleAddNewPointButtonClick}
@@ -132,7 +133,20 @@ const ButtonsCard = ({
                 }
               />
             </Tooltip>
-            <Tooltip placement="left" title="Start segmentation">
+            <Tooltip title="Move left">
+              <Button
+                type="primary"
+                onClick={handleDragLeft}
+                icon={<LeftCircleOutlined />}
+                disabled={
+                  inDrawing || movingSelectedVertex === true || scale === 1.0
+                }
+                // disabled={true}
+              />
+            </Tooltip>
+          </Space>
+          <Space direction="vertical" align="center" size={"middle"}>
+            <Tooltip title="Start segmentation">
               <Button
                 type="primary"
                 onClick={handleStartButtonClick}
@@ -142,7 +156,7 @@ const ButtonsCard = ({
                 }
               />
             </Tooltip>
-            <Tooltip placement="left" title="Finish polygon">
+            <Tooltip title="Finish polygon">
               <Button
                 type="primary"
                 onClick={handleFinishButtonClick}
@@ -154,61 +168,7 @@ const ButtonsCard = ({
                 }
               />
             </Tooltip>
-            <Tooltip placement="left" title="Zoom in">
-              <Button
-                type="primary"
-                onClick={handleZoomIn}
-                icon={<ZoomInOutlined />}
-                disabled={inDrawing || movingSelectedVertex === true}
-                // disabled={true}
-              />
-            </Tooltip>
-            <Tooltip placement="left" title="Zoom out">
-              <Button
-                type="primary"
-                onClick={handleZoomOut}
-                icon={<ZoomOutOutlined />}
-                disabled={inDrawing || movingSelectedVertex === true}
-                // disabled={true}
-              />
-            </Tooltip>
-            <Tooltip placement="left" title="Move up">
-              <Button
-                type="primary"
-                onClick={handleDragUp}
-                icon={<UpCircleOutlined />}
-                disabled={inDrawing || movingSelectedVertex === true}
-                // disabled={true}
-              />
-            </Tooltip>
-            <Tooltip placement="left" title="Move down">
-              <Button
-                type="primary"
-                onClick={handleDragDown}
-                icon={<DownCircleOutlined />}
-                disabled={inDrawing || movingSelectedVertex === true}
-                // disabled={true}
-              />
-            </Tooltip>
-            <Tooltip placement="left" title="Move left">
-              <Button
-                type="primary"
-                onClick={handleDragLeft}
-                icon={<LeftCircleOutlined />}
-                disabled={inDrawing || movingSelectedVertex === true}
-                // disabled={true}
-              />
-            </Tooltip>
-            <Tooltip placement="left" title="Move right">
-              <Button
-                type="primary"
-                onClick={handleDragRight}
-                icon={<RightCircleOutlined />}
-                disabled={inDrawing || movingSelectedVertex === true}
-                // disabled={true}
-              />
-            </Tooltip>
-            <Tooltip placement="left" title="Delete selected polygon">
+            <Tooltip title="Delete selected polygon">
               <Button
                 type="primary"
                 danger
@@ -217,7 +177,31 @@ const ButtonsCard = ({
                 disabled={inDrawing || selectedPolygon === null}
               />
             </Tooltip>
-            <Tooltip placement="left" title="Export JSON">
+            <Tooltip title="Move up">
+              <Button
+                type="primary"
+                onClick={handleDragUp}
+                icon={<UpCircleOutlined />}
+                disabled={
+                  inDrawing || movingSelectedVertex === true || scale === 1.0
+                }
+                // disabled={true}
+              />
+            </Tooltip>
+            <Tooltip title="Move down">
+              <Button
+                type="primary"
+                onClick={handleDragDown}
+                icon={<DownCircleOutlined />}
+                disabled={
+                  inDrawing || movingSelectedVertex === true || scale === 1.0
+                }
+                // disabled={true}
+              />
+            </Tooltip>
+          </Space>
+          <Space direction="vertical" align="center" size={"middle"}>
+            <Tooltip title="Export JSON">
               <Button
                 type="primary"
                 onClick={saveCoordenates}
@@ -225,10 +209,43 @@ const ButtonsCard = ({
                 disabled={inDrawing || movingSelectedVertex === true}
               />
             </Tooltip>
+            <Tooltip title="Zoom in">
+              <Button
+                type="primary"
+                onClick={handleZoomIn}
+                icon={<ZoomInOutlined />}
+                disabled={
+                  inDrawing || movingSelectedVertex === true || scale >= 1.9
+                }
+                // disabled={true}
+              />
+            </Tooltip>
+            <Tooltip title="Zoom out">
+              <Button
+                type="primary"
+                onClick={handleZoomOut}
+                icon={<ZoomOutOutlined />}
+                disabled={
+                  inDrawing || movingSelectedVertex === true || scale === 1.0
+                }
+                // disabled={true}
+              />
+            </Tooltip>
+            <Tooltip title="Detinado a inferência">
+              <Button type="primary" disabled={true} />
+            </Tooltip>
+            <Tooltip title="Move right">
+              <Button
+                type="primary"
+                onClick={handleDragRight}
+                icon={<RightCircleOutlined />}
+                disabled={inDrawing || movingSelectedVertex === true || scale === 1.0}
+                // disabled={true}
+              />
+            </Tooltip>
           </Space>
-        </Card>
-      </div>
-    </div>
+        </Space>
+      </Card>
   );
 };
 

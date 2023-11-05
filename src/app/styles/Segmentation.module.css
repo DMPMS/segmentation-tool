@@ -5,14 +5,18 @@
 
 .card_ant {
 
-  margin: 16px;
-
+  margin: 0px;
   border-radius: 8px;
   box-shadow: 0 0px 5px 0px rgba(0, 0, 0, 0.1);
   width: 100%;
   overflow-y: auto;
-  max-height: 95vh;
-  min-height: 95vh;
+  max-height: 90vh;
+  min-height: 90vh;
+}
+
+.canvas_img {
+  box-shadow: 0 0px 5px 0px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
 }
 
 .card_tools {
@@ -26,7 +30,7 @@
   box-shadow: 0 0px 5px 0px rgba(0, 0, 0, 0.1);
 
   overflow-y: auto;
-  max-height: 82vh;
+  max-height: 30vh;
 
   max-width: 27vh;
   min-width: 27vh;
@@ -45,6 +49,7 @@
   list-style: none;
   display: flex;
   padding: 0px;
+  max-height: 0px;
 }
 
 .imagesListItem {
@@ -61,6 +66,7 @@
   height: 100%;
   object-fit: cover;
 }
-.imagesCard {
+
+/* .imagesCard {
   overflow-x: auto;
-}
+} */

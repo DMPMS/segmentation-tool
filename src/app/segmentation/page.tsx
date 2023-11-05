@@ -331,6 +331,8 @@ const Segmentation: NextPage = () => {
     const x = event.clientX - rect.left;
     const y = event.clientY - rect.top;
 
+    console.log(scale);
+
     // console.log(polygons[selectedVertex[0][0]].points.length);
 
     if (movingSelectedVertex && selectedVertex.length === 1) {
@@ -820,7 +822,9 @@ const Segmentation: NextPage = () => {
               setSelectedVertex={setSelectedVertex}
             />
           </div>
-          <Canvas canvas={canvasRef} handleCanvasClick={handleCanvasClick} />
+          <div className={styles.canvas_img}>
+            <Canvas canvas={canvasRef} handleCanvasClick={handleCanvasClick} />
+          </div>
           <div>
             <ButtonsCard
               handleStartButtonClick={handleStartButtonClick}
@@ -838,6 +842,7 @@ const Segmentation: NextPage = () => {
               handleDragDown={handleDragDown}
               handleDragRight={handleDragRight}
               handleDragLeft={handleDragLeft}
+              scale={scale}
               handleDeletePolygonButtonClick={handleDeletePolygonButtonClick}
               handleUndoPointClick={handleUndoPointClick}
               handlePointPolygonButtonClick={handlePointPolygonButtonClick}
@@ -850,11 +855,8 @@ const Segmentation: NextPage = () => {
           </div>
         </div>
         <div>
-          <Card
-            title={`Images List • ${selectedImage?.file_name}`}
-            className={styles.imagesCard}
-          >
-            <ul className={styles.imagesList}>
+          <h4>{`Images List • ${selectedImage?.file_name}`}</h4>
+          <ul className={styles.imagesList} style={{height: canvasRef.current?.height}}>
               {uploadedImages.map((item: any) => (
                 <li
                   className={styles.imagesListItem}
@@ -881,7 +883,6 @@ const Segmentation: NextPage = () => {
                 </li>
               ))}
             </ul>
-          </Card>
         </div>
       </Card>
     </div>
