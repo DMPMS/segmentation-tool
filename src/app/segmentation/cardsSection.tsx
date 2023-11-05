@@ -108,7 +108,9 @@ const CardsSection = ({
 
   const contentList: Record<string, React.ReactNode> = {
     classes:
-      polygons.length > 0 ? (
+      polygons.filter(
+        (polygon: Polygon) => polygon.imageName === selectedImage?.file_name
+      ).length > 0 ? (
         <div>
           {Object.keys(polygonGroups).map((polygonClass, index) => {
             return (
@@ -135,7 +137,9 @@ const CardsSection = ({
         <span>No segmented classes</span>
       ),
     annotations:
-      polygons.length > 0 ? (
+      polygons.filter(
+        (polygon: Polygon) => polygon.imageName === selectedImage?.file_name
+      ).length > 0 ? (
         <div>
           {polygons
             .filter(
